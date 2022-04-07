@@ -4,6 +4,7 @@ import app from './firebase.init';
 import { getAuth } from "firebase/auth";
 import Form from 'react-bootstrap/Form'
 import { Button } from 'react-bootstrap';
+import { useState } from 'react';
 
 
 
@@ -11,8 +12,10 @@ const auth = getAuth(app)
 
 function App() {
 
+  const [email, setEmail] = useState('');
+
   const handleEmailBlur = event => {
-    console.log(event.target.value)
+    setEmail(event.target.value)
   }
 
   const handlePassBlur = event => {
@@ -20,7 +23,7 @@ function App() {
   }
 
   const handleSubmit = event => {
-    console.log('form submited');
+    console.log('form submited', email);
     event.preventDefault();
   }
   return (
