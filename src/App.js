@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import app from './firebase.init';
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import Form from 'react-bootstrap/Form'
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
@@ -15,8 +15,14 @@ function App() {
   const [validated, setValidated] = useState(false);
   const [error, setError] = useState('');
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [registerd, setRegisterd] = useState(false);
+
+
+  const handleNameBlur = event => {
+    setName(event.target.value);
+  }
 
   const handleEmailBlur = event => {
     setEmail(event.target.value)
@@ -66,6 +72,7 @@ function App() {
           setEmail('');
           setPassword('');
           verifyEmail();
+          setUserName();
         })
         .catch(error => {
           console.log(error);
@@ -82,6 +89,18 @@ function App() {
       })
   }
 
+  const setUserName = () => {
+    updateProfile(auth.currentUser, {
+      displayName: name
+    })
+      .then(() => {
+        console.log('updating name')
+      })
+      .catch(error => {
+        console.log(error);
+        setError(error.message);
+      })
+  }
   const verifyEmail = () => {
     sendEmailVerification(auth.currentUser)
       .then(() => {
@@ -104,6 +123,13 @@ function App() {
               Please choose a valid Email.
             </Form.Control.Feedback>
           </Form.Group>
+          {!registerd && <Form.Group className="mb-3" controlId="formBasicEmail">
+            <Form.Label>Your Name</Form.Label>
+            <Form.Control onBlur={handleNameBlur} type="text" placeholder="Your Name" required />
+            <Form.Control.Feedback type="invalid">
+              Please Provide Your Name.
+            </Form.Control.Feedback>
+          </Form.Group>}
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
             <Form.Control onBlur={handlePassBlur} type="password" placeholder="Password" required />
