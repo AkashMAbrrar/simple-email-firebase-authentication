@@ -1,7 +1,7 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import app from './firebase.init';
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 import Form from 'react-bootstrap/Form'
 import { Button } from 'react-bootstrap';
 import { useState } from 'react';
@@ -13,7 +13,7 @@ const auth = getAuth(app)
 function App() {
 
   const [validated, setValidated] = useState(false);
-  const [error1, setError] = useState('');
+  const [error, setError] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [registerd, setRegisterd] = useState(false);
@@ -44,21 +44,62 @@ function App() {
     }
 
     setValidated(true);
-    setError('')
+    setError('');
 
+    if (registerd) {
+      signInWithEmailAndPassword(auth, email, password)
+        .then(result => {
+          const user = result.user;
+          console.log(user)
+        })
+        .catch(error => {
+          console.log(error)
+          setError(error.message)
+        })
+    }
+    else {
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(result => {
+          const user = result.user;
+          console.log(user)
+          setEmail('');
+          setPassword('');
+        })
+        .catch(error => {
+          console.error(error);
+          setError(error.message)
+        })
+    }
     createUserWithEmailAndPassword(auth, email, password)
       .then(result => {
         const user = result.user;
         console.log(user)
         setEmail('');
         setPassword('');
+        verifyEmail();
       })
       .catch(error => {
-        console.error(error);
-        setError(error1.message)
+        console.log(error);
+        setError(error.message);
+        return;
       })
     event.preventDefault();
   }
+
+  const handlePasswordReset = () => {
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        console.log('password reset email sent');
+      })
+  }
+
+  const verifyEmail = () => {
+    sendEmailVerification(auth.currentUser)
+      .then(() => {
+        console.log('Email Verification sent');
+      })
+  }
+
   return (
     <div>
       <div className="registration w-50 mx-auto mt-5">
@@ -84,7 +125,9 @@ function App() {
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check onChange={handleRegisterd} type="checkbox" label="Already Registerd?" />
           </Form.Group>
-          <p className='text-danger'></p>
+          <p className='text-danger'>{error}</p>
+          <Button onClick={handlePasswordReset} variant='link'>Forget Password</Button>
+          <br />
           <Button variant="primary" type="submit">
             {registerd ? 'Login' : 'Register'}
           </Button>
