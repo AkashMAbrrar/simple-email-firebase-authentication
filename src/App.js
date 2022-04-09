@@ -41,6 +41,7 @@ function App() {
 
     if (!/(?=.*?[#?!@$%^&*-])/.test(password)) {
       setError('password should conatain at one special character');
+      return;
     }
 
     setValidated(true);
@@ -50,7 +51,7 @@ function App() {
       signInWithEmailAndPassword(auth, email, password)
         .then(result => {
           const user = result.user;
-          console.log(user)
+          console.log(user);
         })
         .catch(error => {
           console.log(error)
@@ -64,25 +65,13 @@ function App() {
           console.log(user)
           setEmail('');
           setPassword('');
+          verifyEmail();
         })
         .catch(error => {
-          console.error(error);
-          setError(error.message)
+          console.log(error);
+          setError(error.message);
         })
     }
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(result => {
-        const user = result.user;
-        console.log(user)
-        setEmail('');
-        setPassword('');
-        verifyEmail();
-      })
-      .catch(error => {
-        console.log(error);
-        setError(error.message);
-        return;
-      })
     event.preventDefault();
   }
 
